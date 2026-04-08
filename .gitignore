@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+.env
+.env.*
+.ultralytics/
+uploads/
+*.db
+*.sqlite3
+*.pt
+*.pth
+.DS_Store
+Thumbs.db

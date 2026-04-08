@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Based-Crowd-Density-Analysis-for-Railway-Stations</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <section class="login-screen" id="loginScreen">
+      <div class="login-card">
+        <div class="shield-icon">S</div>
+        <p class="eyebrow">AI-Based-Crowd-Density-Analysis-for-Railway-Stations</p>
+        <h1>AI-Based Crowd Density Analysis For Railway Stations</h1>
+        <p class="login-copy">Secure operator access for live tracking, density alerts, analytics, and image or video uploads.</p>
+        <div class="auth-switch">
+          <button type="button" class="btn btn-primary auth-toggle" id="showLoginBtn">Login</button>
+          <button type="button" class="btn btn-ghost auth-toggle" id="showRegisterBtn">Register</button>
+        </div>
+        <p class="auth-message hidden" id="authMessage"></p>
+        <form id="loginForm" class="login-form">
+          <label><span>Email</span><input type="email" id="loginEmail" placeholder="operator@railway.ai" required></label>
+          <label><span>Password</span><input type="password" id="loginPassword" placeholder="password" required></label>
+          <button type="submit" class="btn btn-primary full">Login</button>
+        </form>
+        <form id="registerForm" class="login-form hidden">
+          <label><span>Name</span><input type="text" id="registerName" placeholder="Operator Name" required></label>
+          <label><span>Email</span><input type="email" id="registerEmail" placeholder="operator@railway.ai" required></label>
+          <label><span>Password</span><input type="password" id="registerPassword" placeholder="Create password" required></label>
+          <button type="submit" class="btn btn-primary full">Register</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="dashboard hidden" id="dashboard">
+      <aside class="sidebar">
+        <div>
+          <div class="brand-block">
+            <div class="shield-icon small">S</div>
+            <div>
+              <h2>AI-Based Crowd Density Analysis For Railway Stations</h2>
+              <p id="brandStatus">System Online &bull; Checking model...</p>
+            </div>
+          </div>
+
+          <nav class="nav-list">
+            <button class="nav-item active" data-page="dashboard-page">Upload Image</button>
+            <button class="nav-item" data-page="dashboard-page">Upload Video</button>
+            <button class="nav-item" data-page="dashboard-page">Live Webcam</button>
+            <button class="nav-item" data-page="analytics-page">Analytics</button>
+            <button class="nav-item" data-page="alerts-page">Alerts</button>
+            <button class="nav-item" data-page="settings-page">Settings</button>
+            <button class="nav-item" id="sidebarAuthBtn">Logout</button>
+          </nav>
+        </div>
+
+        <div class="sidebar-footer">
+          <div class="status-line">
+            <span class="status-dot"></span>
+            <span id="sidebarStatus">System Online &bull; Checking model...</span>
+          </div>
+          <div class="calibration-chip" id="calibrationChip">1 px = -- cm</div>
+          <div class="calibration-chip" id="userChip">Not signed in</div>
+        </div>
+      </aside>
+
+      <main class="content">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Railway Dashboard</p>
+            <h1>Operational Crowd Monitoring</h1>
+          </div>
+          <div class="density-badge" id="densityBadge">
+            <span class="dot"></span>
+            <span id="densityBadgeText">Medium Density (101-200)</span>
+          </div>
+        </header>
+
+        <section class="page active" id="dashboard-page">
+          <div class="metrics-grid">
+            <article class="metric-card"><p>Live Count</p><h3 id="liveCountMetric">0</h3></article>
+            <article class="metric-card"><p>Unique People</p><h3 id="uniqueMetric">0</h3></article>
+            <article class="metric-card amber"><p>Peak Count</p><h3 id="peakMetric">0</h3></article>
+            <article class="metric-card"><p>Avg/Frame</p><h3 id="avgMetric">0.00</h3></article>
+            <article class="metric-card"><p>FPS</p><h3 id="fpsMetric">0.00</h3></article>
+          </div>
+
+          <div class="alert-bar hidden" id="alertBar">HIGH DENSITY ALERT</div>
+
+          <div class="dashboard-grid">
+            <section class="panel live-panel">
+              <div class="panel-head">
+                <div><p class="panel-label">Live Feed</p><h2>Source Control</h2></div>
+                <div class="panel-actions">
+                  <button class="btn btn-ghost" id="roiModeBtn">Draw ROI</button>
+                  <button class="btn btn-ghost" id="calibrationModeBtn">Calibration</button>
+                </div>
+              </div>
+
+              <div class="control-row">
+                <label class="upload-box"><span>Upload Image</span><input type="file" id="imageInput" accept="image/*"></label>
+                <label class="upload-box"><span>Upload Video</span><input type="file" id="videoInput" accept="video/*"></label>
+                <button class="btn btn-primary" id="startCameraBtn">Start Camera</button>
+                <button class="btn btn-ghost" id="clearRoiBtn">Clear ROI</button>
+              </div>
+
+              <div class="video-stage">
+                <img id="videoFeed" alt="Live feed">
+                <canvas id="overlayCanvas"></canvas>
+                <div class="video-placeholder" id="videoPlaceholder">
+                  <h3>No feed active</h3>
+                  <p>Upload an image, upload a video, or start the camera to begin.</p>
+                </div>
+              </div>
+
+              <div class="status-bar">
+                <span id="feedStatus">System Online &bull; Checking model...</span>
+                <span id="roiStatus">ROI inactive</span>
+              </div>
+            </section>
+
+            <section class="panel chart-panel">
+              <div class="panel-head"><div><p class="panel-label">Density Chart</p><h2>Density (p/m2)</h2></div></div>
+              <canvas id="densityChartCanvas" height="220"></canvas>
+              <div class="chart-caption">Realtime density over time. Falls back to persons/frame before calibration.</div>
+            </section>
+          </div>
+        </section>
+
+        <section class="page" id="analytics-page">
+          <div class="page-head"><div><p class="panel-label">Analytics</p><h2>Session Trends</h2></div><a class="btn btn-primary" href="/api/export_csv">Export CSV</a></div>
+          <div class="analytics-grid">
+            <article class="panel"><p class="panel-label">Chart 1</p><h3>Density (p/m2) over time</h3><canvas id="analyticsDensityCanvas" height="220"></canvas></article>
+            <article class="panel"><p class="panel-label">Chart 2</p><h3>Unique person entries over time</h3><canvas id="analyticsUniqueCanvas" height="220"></canvas></article>
+            <article class="panel wide"><p class="panel-label">Chart 3</p><h3>Alert frequency heatmap by hour</h3><div id="heatmapGrid" class="heatmap-grid"></div></article>
+          </div>
+        </section>
+
+        <section class="page" id="alerts-page">
+          <div class="page-head"><div><p class="panel-label">Alerts</p><h2>Incident Log</h2></div></div>
+          <div class="panel">
+            <table class="alerts-table">
+              <thead><tr><th>Timestamp</th><th>Duration</th><th>Peak Density</th><th>Status</th></tr></thead>
+              <tbody id="alertsTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="page" id="settings-page">
+          <div class="page-head"><div><p class="panel-label">Settings</p><h2>Account And Calibration</h2></div></div>
+          <div class="settings-grid">
+            <article class="panel">
+              <h3>Profile</h3>
+              <p class="settings-copy">Update the operator display name used inside the dashboard.</p>
+              <p class="auth-message hidden" id="profileMessage"></p>
+              <form class="settings-form" id="profileForm">
+                <label><span>Display Name</span><input type="text" id="profileNameInput" placeholder="Operator Name"></label>
+                <label><span>Registered Email</span><input type="email" id="profileEmailInput" disabled></label>
+                <button type="submit" class="btn btn-primary">Save Profile</button>
+              </form>
+            </article>
+            <article class="panel">
+              <h3>Change Password</h3>
+              <p class="settings-copy">Keep the account secure by changing the current password.</p>
+              <p class="auth-message hidden" id="passwordMessage"></p>
+              <form class="settings-form" id="passwordForm">
+                <label><span>Current Password</span><input type="password" id="currentPasswordInput" placeholder="Current password"></label>
+                <label><span>New Password</span><input type="password" id="newPasswordInput" placeholder="New password"></label>
+                <button type="submit" class="btn btn-primary">Update Password</button>
+              </form>
+            </article>
+            <article class="panel">
+              <h3>Alert Delivery</h3>
+              <p class="settings-copy">Set a separate email address for receiving high-density alert messages.</p>
+              <p class="auth-message hidden" id="alertEmailMessage"></p>
+              <form class="settings-form" id="alertEmailForm">
+                <label><span>Alert Email</span><input type="email" id="alertEmailInput" placeholder="alerts@railway.ai"></label>
+                <button type="submit" class="btn btn-primary">Update Alert Email</button>
+              </form>
+            </article>
+            <article class="panel">
+              <h3>Pixel-to-Meter Calibration</h3>
+              <p class="settings-copy">Step 1: Click two points on a known object. Step 2: Enter the real-world length. Step 3: The app computes the scale. Step 4: ROI area is converted to square meters.</p>
+              <div class="settings-form">
+                <label><span>Known Length (meters)</span><input type="number" min="0.01" step="0.01" id="realLengthInput" placeholder="2.0"></label>
+                <button class="btn btn-primary" type="button" id="saveCalibrationBtn">Save Calibration</button>
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
+    </section>
+  </div>
+  <script src="/static/js/main.js"></script>
+</body>
+</html>
+
+
