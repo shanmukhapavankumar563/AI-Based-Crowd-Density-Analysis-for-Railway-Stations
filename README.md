@@ -83,6 +83,8 @@ For Render deployment, use a Python Web Service.
 
 - Build command: `pip install -r requirements.txt`
 - Start command: `gunicorn app:app`
+- Runtime version: `python-3.11.9`
+- `render.yaml` is included in this repository for easier setup
 
 Note: cloud deployment may have limitations for local webcam access, persistent uploads, and SQLite storage.
 
